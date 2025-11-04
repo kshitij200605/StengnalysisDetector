@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>ML Steganalysis Detector</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Animated background layers -->
+    <div id="bg-gradient"></div>
+    <canvas id="matrix"></canvas>
+
+    <div class="ui-wrap">
+        <header class="header">
+            <div class="logo">🕵️ ML Steganalysis</div>
+            <div class="sub">Hide · Detect · Reveal</div>
+        </header>
+
+        <!-- message/result -->
+        {% if result %}
+        <div class="result">{{ result }}</div>
+        {% endif %}
+
+        {% if hidden_message %}
+        <div class="hidden-message">
+            <h2>📜 Hidden Message</h2>
+            <pre>{{ hidden_message }}</pre>
+        </div>
+        {% endif %}
+
+        <main class="grid">
+            <!-- Hide -->
+            <section class="card">
+                <h2>📝 Hide Message</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    <label>Upload Image</label>
+                    <input type="file" name="image" accept="image/*" required>
+                    <label>Message</label>
+                    <textarea name="message" placeholder="Secret text..." required></textarea>
+                    <button type="submit" name="hide">Hide Message</button>
+                </form>
+            </section>
+
+            <!-- Detect -->
+            <section class="card detect-card">
+                <h2>🔍 Detect Stego</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    <label>Upload Image</label>
+                    <input type="file" name="image" accept="image/*" required>
+                    <button type="submit" name="detect">Run Detection</button>
+                </form>
+            </section>
+
+            <!-- Reveal -->
+            <section class="card reveal-card">
+                <h2>📂 Reveal Message</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    <label>Upload Image</label>
+                    <input type="file" name="image" accept="image/*" required>
+                    <button type="submit" name="reveal">Reveal Message</button>
+                </form>
+
+
+            </section>
+        </main>
+
+        <footer class="footer">ML Steganalysis Detector</footer>
+    </div>
+
+
+</body>
+
+</html>

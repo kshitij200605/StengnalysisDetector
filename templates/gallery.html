@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery - Steganography Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Animated background layers -->
+    <div id="bg-gradient"></div>
+    <canvas id="matrix"></canvas>
+
+    <div class="ui-wrap">
+        <header class="header">
+            <div class="logo">🖼️ Image Gallery</div>
+            <div class="sub">Browse your stored images and extract any hidden messages</div>
+        </header>
+
+        {% if hidden_message %}
+        <div class="hidden-message">
+            <h2>🔓 Revealed Message</h2>
+            <pre>{{ hidden_message }}</pre>
+        </div>
+        {% endif %}
+
+        <div class="gallery-grid">
+            {% for row in rows %}
+            <div class="thumb-card">
+                <img src="{{ url_for('get_image', image_id=row[0]) }}" alt="{{ row[1] }}" loading="lazy">
+                <div class="meta">{{ row[1] }}</div>
+                <form method="POST">
+                    <input type="hidden" name="image_id" value="{{ row[0] }}">
+                    <button type="submit" name="reveal">🔓 Reveal Message</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not rows %}
+        <div class="empty-gallery">
+            <h3>📭 No images found</h3>
+            <p>Start by hiding some messages in images on the main page!</p>
+        </div>
+        {% endif %}
+
+        <style>
+            .empty-gallery {
+                text-align: center;
+                padding: 40px;
+                color: var(--secondary);
+            }
+
+            .empty-gallery h3 {
+                color: var(--dark);
+                margin-bottom: 10px;
+            }
+        </style>
+
+        <div class="back-link">
+            <a href="{{ url_for('index') }}">← Back to Steganography Hub</a>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
