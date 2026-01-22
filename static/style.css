@@ -138,6 +138,44 @@ label {
     margin-bottom: 6px;
 }
 
+/* Drop zone styles */
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    background: var(--light);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.drop-zone:hover {
+    border-color: var(--primary);
+}
+
+.drop-zone.dragover {
+    border-color: var(--primary);
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.drop-zone p {
+    margin: 0;
+    color: var(--secondary);
+}
+
+.drop-zone .click-link {
+    color: var(--primary);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.drop-zone .file-name {
+    margin-top: 10px;
+    font-weight: bold;
+    color: var(--dark);
+}
+
 input[type="file"] {
     width: 100%;
     background: var(--light);
