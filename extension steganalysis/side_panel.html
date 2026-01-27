@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganalysis Detector</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🕵️ Steganalysis</h1>
+            <p>Hide · Detect · Reveal</p>
+        </header>
+
+        <div id="result" class="result" style="display: none;"></div>
+        <div id="hidden-message" class="hidden-message" style="display: none;">
+            <h3>📜 Hidden Message</h3>
+            <pre id="message-content"></pre>
+        </div>
+
+        <div id="dragged-file-display" style="display: none;">
+            <p>Dragged file: <span id="dragged-file-name"></span></p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="hide">Hide</button>
+            <button class="tab-button" data-tab="detect">Detect</button>
+            <button class="tab-button" data-tab="reveal">Reveal</button>
+        </div>
+
+        <button type="button" id="gallery-btn" style="margin: 10px 0;">View Gallery</button>
+
+        <div id="hide-tab" class="tab-content active">
+            <h2>📝 Hide Message</h2>
+            <form id="hide-form">
+                <label>Upload File</label>
+                <input type="file" id="hide-file" accept="image/*,video/*,audio/*" required>
+                <p class="file-name" id="hide-file-name"></p>
+                <label>Message</label>
+                <textarea id="hide-message" placeholder="Secret text..." required></textarea>
+                <button type="button" id="hide-btn">Hide Message</button>
+            </form>
+        </div>
+
+        <div id="detect-tab" class="tab-content">
+            <h2>🔍 Detect Stego</h2>
+            <form id="detect-form">
+                <label>Upload File</label>
+                <input type="file" id="detect-file" accept="image/*,video/*,audio/*" required>
+                <p class="file-name" id="detect-file-name"></p>
+                <button type="button" id="detect-btn">Run Detection</button>
+            </form>
+        </div>
+
+        <div id="reveal-tab" class="tab-content">
+            <h2>📂 Reveal Message</h2>
+            <form id="reveal-form">
+                <label>Upload File</label>
+                <input type="file" id="reveal-file" accept="image/*,video/*,audio/*" required>
+                <p class="file-name" id="reveal-file-name"></p>
+                <button type="button" id="reveal-btn">Reveal Message</button>
+            </form>
+        </div>
+    </div>
+    <script src="side_panel.js"></script>
+</body>
+
+</html>

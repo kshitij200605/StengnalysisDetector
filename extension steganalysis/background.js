@@ -1,4 +1,4 @@
-// Service worker for context menu and popup management
+// Service worker for context menu, side panel, and drag-and-drop management
 
 // Create context menu on installation
 chrome.runtime.onInstalled.addListener(() => {
@@ -6,6 +6,11 @@ chrome.runtime.onInstalled.addListener(() => {
         id: "sendToSteganalysis",
         title: "Send to Steganalysis Extension",
         contexts: ["image", "video", "audio"]
+    });
+
+    // Enable side panel globally
+    chrome.sidePanel.setOptions({
+        enabled: true
     });
 });
 
@@ -34,12 +39,15 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                 'draggedFileType': type
             });
 
+            // Open side panel
+            chrome.sidePanel.open({ tabId: tab.id });
+
             // Show notification
             chrome.notifications.create({
                 type: 'basic',
                 iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
                 title: 'File Captured',
-                message: 'File sent to Steganalysis Extension. Open the extension to use it.'
+                message: 'File sent to Steganalysis Extension. Check the side panel.'
             });
 
         } catch (error) {
@@ -51,6 +59,51 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                 message: 'Failed to capture file.'
             });
         }
+    }
+});
+
+// Handle messages from content script for drag-and-drop
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'processDraggedFile') {
+        // Open side panel first (in response to user gesture)
+        chrome.sidePanel.open({ tabId: sender.tab.id });
+
+        (async () => {
+            try {
+                const { src, filename, tagName } = message.data;
+
+                // Fetch the media as blob
+                const response = await fetch(src);
+                const blob = await response.blob();
+
+                // Convert to base64
+                const base64 = await blobToBase64(blob);
+
+                // Store in chrome.storage
+                const type = blob.type || 'application/octet-stream';
+
+                chrome.storage.local.set({
+                    'draggedFile': base64,
+                    'draggedFileName': filename,
+                    'draggedFileType': type
+                });
+
+                // Send message to side panel
+                chrome.runtime.sendMessage({
+                    type: 'draggedFile',
+                    base64: base64,
+                    filename: filename,
+                    type: type
+                });
+
+                sendResponse({ success: true });
+
+            } catch (error) {
+                console.error('Error processing dragged file:', error);
+                sendResponse({ success: false, error: error.message });
+            }
+        })();
+        return true; // Keep the message channel open for async response
     }
 });
 

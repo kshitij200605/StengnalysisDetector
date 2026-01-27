@@ -238,6 +238,48 @@ def reveal_text_from_video(video_path):
     img = Image.fromarray(frame)
     return reveal_text_from_image(img)
 
+def reveal_text_from_video_fast(video_path):
+    if not MOVIEPY_AVAILABLE:
+        raise ImportError("MoviePy is not available. Video steganography requires MoviePy.")
+    clip = VideoFileClip(video_path)
+    frame = clip.get_frame(0)
+    img = Image.fromarray(frame)
+    return reveal_text_from_image_fast(img)
+
+def reveal_text_from_image_fast(img):
+    binary_message = ""
+    width, height = img.size
+    # Limit scanning to first 1000 pixels for speed
+    pixel_count = 0
+    max_pixels = 1000
+    for row in range(height):
+        for col in range(width):
+            if pixel_count >= max_pixels:
+                break
+            pixel = list(img.getpixel((col, row)))
+            for n in range(3):
+                if pixel_count >= max_pixels:
+                    break
+                binary_message += str(pixel[n] & 1)
+                pixel_count += 1
+                if len(binary_message) % 8 == 0 and binary_message[-8:] == '11111110':
+                    # Early stop on delimiter
+                    break
+            if len(binary_message) % 8 == 0 and binary_message[-8:] == '11111110':
+                break
+        if len(binary_message) % 8 == 0 and binary_message[-8:] == '11111110':
+            break
+    message = ""
+    for i in range(0, len(binary_message), 8):
+        byte = binary_message[i:i+8]
+        if byte == "11111110":
+            break
+        try:
+            message += chr(int(byte, 2))
+        except:
+            break
+    return message.strip()
+
 def reveal_text_from_image(img):
     binary_message = ""
     for row in range(img.height):
@@ -288,35 +330,52 @@ def reveal_text_from_audio(audio_path):
 
 # ===================== Simple Detector =====================
 def detect_stego(file_path):
-    # Try all detection methods to handle mislabeled files
-    # Try image detection
-    try:
-        with open(file_path, "rb") as f:
-            file_bytes = f.read()
-        message = reveal_text_from_bytes_fast(file_bytes)
-        if message:
-            return 1
-    except:
-        pass
+    # Determine file type based on extension for faster detection
+    ext = os.path.splitext(file_path)[1].lower()
 
-    # Try video detection
-    try:
-        message = reveal_text_from_video(file_path)
-        if message:
-            return 1
-    except:
-        pass
+    # Image detection
+    if ext in ['.png', '.jpg', '.jpeg']:
+        try:
+            with open(file_path, "rb") as f:
+                file_bytes = f.read()
+            message = reveal_text_from_bytes_fast(file_bytes)
+            if message:
+                return 1
+        except:
+            pass
+        return 0
 
-    # Try audio detection
-    try:
-        message = reveal_text_from_audio(file_path)
-        if message:
-            return 1
-    except:
-        pass
+    # Video detection
+    elif ext in ['.mp4', '.avi']:
+        try:
+            message = reveal_text_from_video_fast(file_path)
+            if message:
+                return 1
+        except:
+            pass
+        return 0
 
-    # No stego detected
-    return 0
+    # Audio detection
+    elif ext in ['.wav', '.mp3']:
+        try:
+            message = reveal_text_from_audio_fast(file_path)
+            if message:
+                return 1
+        except:
+            pass
+        return 0
+
+    # For other files, try image detection as fallback (mislabeled files)
+    else:
+        try:
+            with open(file_path, "rb") as f:
+                file_bytes = f.read()
+            message = reveal_text_from_bytes_fast(file_bytes)
+            if message:
+                return 1
+        except:
+            pass
+        return 0
 
 def extract_features(image_path):
     # Not used anymore, but keep for compatibility
@@ -426,6 +485,20 @@ def get_image(image_id):
     if img_bytes:
         return send_file(io.BytesIO(img_bytes), mimetype="image/png")
     return "Image not found", 404
+
+@app.route("/download/<image_id>")
+def download_image(image_id):
+    validated_id = validate_image_id(image_id)
+    if not validated_id:
+        return "Invalid image ID", 400
+    img_bytes = get_image_by_id(validated_id)
+    if img_bytes:
+        # Get filename from DB
+        with sqlite3.connect(DB) as conn:
+            row = conn.execute("SELECT filename FROM images WHERE id = ?", (validated_id,)).fetchone()
+        filename = row[0] if row else f"stego_{validated_id}.png"
+        return send_file(io.BytesIO(img_bytes), mimetype="image/png", as_attachment=True, download_name=filename)
+    return "Image not found", 404
 @app.route("/gallery", methods=["GET", "POST"])
 def gallery():
     hidden_message = None
@@ -480,7 +553,13 @@ def api_hide():
             stego_img.save(output, format="PNG")
             output.seek(0)
             save_to_db(filename, output.getvalue(), message, 'image')
-            return jsonify({"result": "✅ Message hidden and saved to DB!", "filename": filename})
+            # Get the ID of the saved image
+            conn = sqlite3.connect(DB)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM images WHERE filename = ? ORDER BY id DESC LIMIT 1", (filename,))
+            image_id = cursor.fetchone()[0]
+            conn.close()
+            return jsonify({"result": "✅ Message hidden and saved to DB!", "filename": filename, "image_id": image_id})
         elif ext in ['.mp4', '.avi']:
             # Save temp file for video processing
             temp_input = os.path.join("static", f"temp_hide_{filename}")

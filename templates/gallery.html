@@ -32,10 +32,6 @@
             <div class="thumb-card">
                 <img src="{{ url_for('get_image', image_id=row[0]) }}" alt="{{ row[1] }}" loading="lazy">
                 <div class="meta">{{ row[1] }}</div>
-                <form method="POST">
-                    <input type="hidden" name="image_id" value="{{ row[0] }}">
-                    <button type="submit" name="reveal">🔓 Reveal Message</button>
-                </form>
             </div>
             {% endfor %}
         </div>

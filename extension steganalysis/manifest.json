@@ -8,14 +8,14 @@
         "storage",
         "scripting",
         "contextMenus",
-        "notifications"
+        "notifications",
+        "sidePanel"
     ],
     "background": {
         "service_worker": "background.js"
     },
-    "action": {
-        "default_popup": "popup.html",
-        "default_title": "Steganalysis Detector"
+    "side_panel": {
+        "default_path": "side_panel.html"
     },
     "host_permissions": [
         "http://localhost:5000/*",

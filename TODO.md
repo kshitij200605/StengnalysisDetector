@@ -1,3 +1,0 @@
-- [x] Add drag and drop event listeners to popup.js to prevent popup closing and handle file drops
-- [x] Update file inputs based on active tab when dropping files
-- [ ] Test the extension to ensure popup stays open during drag and drop
