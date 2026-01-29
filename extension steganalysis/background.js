@@ -70,7 +70,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         (async () => {
             try {
-                const { src, filename, tagName } = message.data;
+                const { src, filename, tagName, fileType } = message.data;
 
                 // Fetch the media as blob
                 const response = await fetch(src);
@@ -79,9 +79,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 // Convert to base64
                 const base64 = await blobToBase64(blob);
 
-                // Store in chrome.storage
-                const type = blob.type || 'application/octet-stream';
+                // Determine MIME type
+                let type = blob.type || 'application/octet-stream';
+                if (tagName === 'GALLERY_ITEM' && fileType) {
+                    if (fileType === 'image') {
+                        type = 'image/png';
+                    } else if (fileType === 'video') {
+                        type = 'video/mp4';
+                    } else if (fileType === 'audio') {
+                        type = 'audio/wav';
+                    }
+                }
 
+                // Store in chrome.storage
                 chrome.storage.local.set({
                     'draggedFile': base64,
                     'draggedFileName': filename,

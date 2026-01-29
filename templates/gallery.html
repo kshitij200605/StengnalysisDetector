@@ -16,8 +16,8 @@
 
     <div class="ui-wrap">
         <header class="header">
-            <div class="logo">🖼️ Image Gallery</div>
-            <div class="sub">Browse your stored images and extract any hidden messages</div>
+            <div class="logo">📁 Media Gallery</div>
+            <div class="sub">Browse your stored files and extract any hidden messages</div>
         </header>
 
         {% if hidden_message %}
@@ -29,9 +29,24 @@
 
         <div class="gallery-grid">
             {% for row in rows %}
-            <div class="thumb-card">
+            <div class="thumb-card" draggable="true" data-id="{{ row[0] }}" data-filename="{{ row[1] }}"
+                data-type="{{ row[2] }}">
+                {% if row[2] == 'image' %}
                 <img src="{{ url_for('get_image', image_id=row[0]) }}" alt="{{ row[1] }}" loading="lazy">
-                <div class="meta">{{ row[1] }}</div>
+                {% elif row[2] == 'video' %}
+                <video controls>
+                    <source src="{{ url_for('get_image', image_id=row[0]) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% elif row[2] == 'audio' %}
+                <audio controls>
+                    <source src="{{ url_for('get_image', image_id=row[0]) }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                {% else %}
+                <div class="file-icon">📄</div>
+                {% endif %}
+                <div class="meta">{{ row[1] }} ({{ row[2] }})</div>
             </div>
             {% endfor %}
         </div>
@@ -61,6 +76,18 @@
         </div>
     </div>
 
+    <script>
+        // Add drag functionality to gallery items
+        document.addEventListener('DOMContentLoaded', () => {
+            const thumbCards = document.querySelectorAll('.thumb-card');
+            thumbCards.forEach(card => {
+                card.addEventListener('dragstart', (e) => {
+                    // Allow drag
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+        });
+    </script>
 
 </body>
 

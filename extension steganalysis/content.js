@@ -5,7 +5,8 @@ let draggedElement = null;
 document.addEventListener('dragstart', (e) => {
     const target = e.target;
     if (target.tagName === 'IMG' || target.tagName === 'VIDEO' || target.tagName === 'AUDIO' ||
-        (target.tagName === 'A' && (target.href.match(/\.(jpg|jpeg|png|gif|mp4|avi|mp3|wav)$/i)))) {
+        (target.tagName === 'A' && (target.href.match(/\.(jpg|jpeg|png|gif|mp4|avi|mp3|wav)$/i))) ||
+        target.classList.contains('thumb-card')) {
         draggedElement = target;
         // Allow drag
     }
@@ -41,6 +42,24 @@ document.addEventListener('dragend', (e) => {
                         src: src,
                         filename: filename,
                         tagName: target.tagName
+                    }
+                });
+            }
+        } else if (target.classList.contains('thumb-card')) {
+            // Handle gallery thumb-card drag
+            const imageId = target.getAttribute('data-id');
+            const filename = target.getAttribute('data-filename');
+            const fileType = target.getAttribute('data-type');
+            if (imageId && filename) {
+                // Fetch the file from the server
+                const src = `http://localhost:5000/image/${imageId}`;
+                chrome.runtime.sendMessage({
+                    type: 'processDraggedFile',
+                    data: {
+                        src: src,
+                        filename: filename,
+                        tagName: 'GALLERY_ITEM',
+                        fileType: fileType
                     }
                 });
             }

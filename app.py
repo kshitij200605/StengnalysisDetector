@@ -328,6 +328,27 @@ def reveal_text_from_audio(audio_path):
             break
     return message.strip()
 
+def reveal_text_from_audio_fast(audio_path):
+    audio = AudioSegment.from_file(audio_path)
+    samples = np.array(audio.get_array_of_samples())
+    binary_message = ""
+    # Limit scanning to first 10000 samples for speed
+    max_samples = min(10000, len(samples))
+    for i in range(max_samples):
+        binary_message += str(samples[i] & 1)
+        if len(binary_message) % 8 == 0 and binary_message[-8:] == '11111110':
+            break
+    message = ""
+    for i in range(0, len(binary_message), 8):
+        byte = binary_message[i:i+8]
+        if byte == "11111110":
+            break
+        try:
+            message += chr(int(byte, 2))
+        except:
+            break
+    return message.strip()
+
 # ===================== Simple Detector =====================
 def detect_stego(file_path):
     # Determine file type based on extension for faster detection
@@ -591,7 +612,7 @@ def api_detect():
         file = request.files["file"]
         filename = secure_filename(file.filename)
         file_bytes = file.read()
-        pred = detect_stego_from_bytes(file_bytes)
+        pred = detect_stego_from_bytes(file_bytes, filename)
         file_size = len(file_bytes)
         is_even = file_size % 2 == 0
         result = f"⚠️ Stego Detected! (Even length: {is_even})" if pred == 1 else f"✅ Clean File (Even length: {is_even})"
@@ -631,10 +652,29 @@ def api_reveal():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def detect_stego_from_bytes(file_bytes):
-    # Simplified detection for API
+def detect_stego_from_bytes(file_bytes, filename=""):
+    # Simplified detection for API based on file extension
+    ext = os.path.splitext(filename)[1].lower() if filename else ""
     try:
-        message = reveal_text_from_bytes_fast(file_bytes)
+        if ext in ['.png', '.jpg', '.jpeg']:
+            message = reveal_text_from_bytes_fast(file_bytes)
+        elif ext in ['.mp4', '.avi']:
+            # Save temp file for video processing
+            temp_path = os.path.join("static", f"temp_detect_{filename}")
+            with open(temp_path, "wb") as f:
+                f.write(file_bytes)
+            message = reveal_text_from_video_fast(temp_path)
+            os.remove(temp_path)
+        elif ext in ['.wav', '.mp3']:
+            # Save temp file for audio processing
+            temp_path = os.path.join("static", f"temp_detect_{filename}")
+            with open(temp_path, "wb") as f:
+                f.write(file_bytes)
+            message = reveal_text_from_audio_fast(temp_path)
+            os.remove(temp_path)
+        else:
+            # Fallback to image detection
+            message = reveal_text_from_bytes_fast(file_bytes)
         return 1 if message else 0
     except:
         return 0

@@ -86,7 +86,7 @@
             <section class="card">
                 <h2>📝 Hide Message</h2>
                 <form method="POST" enctype="multipart/form-data">
-                    <label>Upload Image</label>
+                    <label>Upload File</label>
                     <div class="drop-zone" id="hide-drop-zone">
                         <input type="file" id="hide-file-input" name="file" accept="image/*,video/*,audio/*" required
                             style="display: none;">
@@ -103,9 +103,9 @@
             <section class="card detect-card">
                 <h2>🔍 Detect Stego</h2>
                 <form method="POST" enctype="multipart/form-data">
-                    <label>Upload Image</label>
+                    <label>Upload File</label>
                     <div class="drop-zone" id="detect-drop-zone">
-                        <input type="file" id="detect-file-input" name="file" accept="image/*" required
+                        <input type="file" id="detect-file-input" name="file" accept="image/*,video/*,audio/*" required
                             style="display: none;">
                         <p>Drag & drop a file here or <span class="click-link">click to browse</span></p>
                         <p class="file-name" id="detect-file-name"></p>
@@ -118,7 +118,7 @@
             <section class="card reveal-card">
                 <h2>📂 Reveal Message</h2>
                 <form method="POST" enctype="multipart/form-data">
-                    <label>Upload Image</label>
+                    <label>Upload File</label>
                     <div class="drop-zone" id="reveal-drop-zone">
                         <input type="file" id="reveal-file-input" name="file" accept="image/*,video/*,audio/*" required
                             style="display: none;">
