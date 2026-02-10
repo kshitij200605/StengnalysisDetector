@@ -1,0 +1,3 @@
+- [ ] Update side_panel.html to add IDs to the "Upload File" labels for hide, detect, and reveal tabs
+- [ ] Update side_panel.js to change the label text to "Uploaded File: [filename]" when a file is selected or dragged
+- [ ] Test the changes to ensure the file name displays correctly in the labels for all operations

@@ -15,6 +15,11 @@
             <p>Hide · Detect · Reveal</p>
         </header>
 
+        <div id="file-status" class="file-status" style="display: none;">
+            <h3>📁 Current File</h3>
+            <p id="current-file-name"></p>
+        </div>
+
         <div id="result" class="result" style="display: none;"></div>
         <div id="hidden-message" class="hidden-message" style="display: none;">
             <h3>📜 Hidden Message</h3>
@@ -36,7 +41,7 @@
         <div id="hide-tab" class="tab-content active">
             <h2>📝 Hide Message</h2>
             <form id="hide-form">
-                <label>Upload File</label>
+                <label id="hide-label">Upload File</label>
                 <input type="file" id="hide-file" accept="image/*,video/*,audio/*" required>
                 <p class="file-name" id="hide-file-name"></p>
                 <label>Message</label>
@@ -48,7 +53,7 @@
         <div id="detect-tab" class="tab-content">
             <h2>🔍 Detect Stego</h2>
             <form id="detect-form">
-                <label>Upload File</label>
+                <label id="detect-label">Upload File</label>
                 <input type="file" id="detect-file" accept="image/*,video/*,audio/*" required>
                 <p class="file-name" id="detect-file-name"></p>
                 <button type="button" id="detect-btn">Run Detection</button>
@@ -58,7 +63,7 @@
         <div id="reveal-tab" class="tab-content">
             <h2>📂 Reveal Message</h2>
             <form id="reveal-form">
-                <label>Upload File</label>
+                <label id="reveal-label">Upload File</label>
                 <input type="file" id="reveal-file" accept="image/*,video/*,audio/*" required>
                 <p class="file-name" id="reveal-file-name"></p>
                 <button type="button" id="reveal-btn">Reveal Message</button>

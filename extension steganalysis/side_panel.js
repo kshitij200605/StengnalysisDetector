@@ -41,6 +41,45 @@ function showDraggedFile(filename) {
     document.getElementById('dragged-file-display').style.display = 'block';
 }
 
+// Show current file name
+function showCurrentFile(filename) {
+    document.getElementById('current-file-name').textContent = filename;
+    document.getElementById('file-status').style.display = 'block';
+    updateLabel(filename);
+}
+
+// Update label to show uploaded file
+function updateLabel(filename) {
+    const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+    let labelId;
+    if (activeTab === 'hide') {
+        labelId = 'hide-label';
+    } else if (activeTab === 'detect') {
+        labelId = 'detect-label';
+    } else if (activeTab === 'reveal') {
+        labelId = 'reveal-label';
+    }
+    if (labelId) {
+        document.getElementById(labelId).textContent = `Uploaded File: ${filename}`;
+    }
+}
+
+// Reset label to default
+function resetLabel() {
+    const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+    let labelId;
+    if (activeTab === 'hide') {
+        labelId = 'hide-label';
+    } else if (activeTab === 'detect') {
+        labelId = 'detect-label';
+    } else if (activeTab === 'reveal') {
+        labelId = 'reveal-label';
+    }
+    if (labelId) {
+        document.getElementById(labelId).textContent = 'Upload File';
+    }
+}
+
 // Show result message
 function showResult(message, type = 'success') {
     const resultDiv = document.getElementById('result');
@@ -89,8 +128,11 @@ async function handleHide(e) {
 
         const result = await response.json();
         if (response.ok) {
+            console.log('File uploaded successfully for hiding message');
             showResult(result.result, 'success');
+            clearDraggedFile();
         } else {
+            console.log('File upload failed for hiding message:', result.error);
             showResult(result.error || 'Error hiding message', 'error');
         }
     } catch (error) {
@@ -128,8 +170,10 @@ async function handleDetect() {
 
         const result = await response.json();
         if (response.ok) {
+            console.log('File uploaded successfully for detecting steganography');
             showResult(result.result, 'success');
         } else {
+            console.log('File upload failed for detecting steganography:', result.error);
             showResult(result.error || 'Error detecting steganography', 'error');
         }
     } catch (error) {
@@ -168,11 +212,14 @@ async function handleReveal(e) {
 
         const result = await response.json();
         if (response.ok) {
+            console.log('File uploaded successfully for revealing message');
             showResult(result.result, 'success');
             if (result.hidden_message) {
                 showHiddenMessage(result.hidden_message);
             }
+            clearDraggedFile();
         } else {
+            console.log('File upload failed for revealing message:', result.error);
             showResult(result.error || 'Error revealing message', 'error');
         }
     } catch (error) {
@@ -200,67 +247,75 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
             const tabId = button.getAttribute('data-tab') + '-tab';
             document.getElementById(tabId).classList.add('active');
+            resetLabel(); // Reset label when switching tabs
         });
     });
 
     // File input change listeners
     document.getElementById('hide-file').addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            document.getElementById('hide-file-name').textContent = e.target.files[0].name;
+            const filename = e.target.files[0].name;
+            document.getElementById('hide-file-name').textContent = filename;
+            showCurrentFile(filename);
         }
     });
 
     document.getElementById('detect-file').addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            document.getElementById('detect-file-name').textContent = e.target.files[0].name;
+            const filename = e.target.files[0].name;
+            document.getElementById('detect-file-name').textContent = filename;
+            showCurrentFile(filename);
         }
     });
 
     document.getElementById('reveal-file').addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            document.getElementById('reveal-file-name').textContent = e.target.files[0].name;
+            const filename = e.target.files[0].name;
+            document.getElementById('reveal-file-name').textContent = filename;
+            showCurrentFile(filename);
         }
     });
 
     // Drag and drop event listeners for direct drops
     const container = document.querySelector('.container');
-    container.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.add('drag-over');
-    });
+    if (container) {
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            container.classList.add('drag-over');
+        });
 
-    container.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.remove('drag-over');
-    });
+        container.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            container.classList.remove('drag-over');
+        });
 
-    container.addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        container.classList.remove('drag-over');
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            container.classList.remove('drag-over');
 
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            const file = files[0];
-            draggedFile = file;
-            showDraggedFile(file.name);
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                draggedFile = file;
+                showDraggedFile(file.name);
+                showCurrentFile(file.name);
 
-            // Determine active tab and set file accordingly
-            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-            if (activeTab === 'hide') {
-                document.getElementById('hide-file').files = files;
-                document.getElementById('hide-file-name').textContent = file.name;
-            } else if (activeTab === 'detect') {
-                document.getElementById('detect-file').files = files;
-                document.getElementById('detect-file-name').textContent = file.name;
-            } else if (activeTab === 'reveal') {
-                document.getElementById('reveal-file').files = files;
-                document.getElementById('reveal-file-name').textContent = file.name;
+                // Determine active tab and set file accordingly
+                const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+                if (activeTab === 'hide') {
+                    // Instead of setting files, just update the display
+                    document.getElementById('hide-file-name').textContent = file.name;
+                } else if (activeTab === 'detect') {
+                    document.getElementById('detect-file-name').textContent = file.name;
+                } else if (activeTab === 'reveal') {
+                    document.getElementById('reveal-file-name').textContent = file.name;
+                }
             }
-        }
-    });
+        });
+    }
 
     // Listen for messages from content script
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -272,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(blob => {
                     draggedFile = new File([blob], filename, { type: type });
                     showDraggedFile(filename);
+                    showCurrentFile(filename);
                 })
                 .catch(error => console.error('Error processing dragged file:', error));
         }

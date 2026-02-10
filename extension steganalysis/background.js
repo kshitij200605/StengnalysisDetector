@@ -65,9 +65,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // Handle messages from content script for drag-and-drop
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'processDraggedFile') {
-        // Open side panel first (in response to user gesture)
-        chrome.sidePanel.open({ tabId: sender.tab.id });
-
         (async () => {
             try {
                 const { src, filename, tagName, fileType } = message.data;

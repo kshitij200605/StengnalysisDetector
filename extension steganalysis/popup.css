@@ -172,3 +172,56 @@ button[type="submit"]:disabled {
     background: var(--secondary);
     cursor: not-allowed;
 }
+
+/* File name display */
+.file-name {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+    background: #28a745;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #28a745;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dragged file display */
+#dragged-file-display {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+    background: #17a2b8;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #17a2b8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* File status display */
+.file-status {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+    background: #dc3545;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #dc3545;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.file-status h3 {
+    margin: 0 0 5px 0;
+    color: white;
+    font-size: 1rem;
+}
+
+.file-status p {
+    margin: 0;
+    color: white;
+}

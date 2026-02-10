@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>ML Steganalysis Detector</title>
+    <title>Steganalysis Detector</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
@@ -35,7 +35,35 @@
                 dropZone.classList.remove('dragover');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    fileInput.files = files;
+                    const dt = new DataTransfer();
+                    for (let file of files) {
+                        dt.items.add(file);
+                    }
+                    fileInput.files = dt.files;
+                    fileName.textContent = files[0].name;
+                }
+            });
+
+            // Also add drag and drop events to the file input itself
+            fileInput.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            fileInput.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            fileInput.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const dt = new DataTransfer();
+                    for (let file of files) {
+                        dt.items.add(file);
+                    }
+                    fileInput.files = dt.files;
                     fileName.textContent = files[0].name;
                 }
             });
@@ -87,12 +115,11 @@
                 <h2>📝 Hide Message</h2>
                 <form method="POST" enctype="multipart/form-data">
                     <label>Upload File</label>
-                    <div class="drop-zone" id="hide-drop-zone">
-                        <input type="file" id="hide-file-input" name="file" accept="image/*,video/*,audio/*" required
-                            style="display: none;">
+                    <label class="drop-zone" id="hide-drop-zone" for="hide-file-input">
+                        <input type="file" id="hide-file-input" name="file" accept="image/*,video/*,audio/*" required>
                         <p>Drag & drop a file here or <span class="click-link">click to browse</span></p>
                         <p class="file-name" id="hide-file-name"></p>
-                    </div>
+                    </label>
                     <label>Message</label>
                     <textarea name="message" placeholder="Secret text..." required></textarea>
                     <button type="submit" name="hide">Hide Message</button>
@@ -104,12 +131,11 @@
                 <h2>🔍 Detect Stego</h2>
                 <form method="POST" enctype="multipart/form-data">
                     <label>Upload File</label>
-                    <div class="drop-zone" id="detect-drop-zone">
-                        <input type="file" id="detect-file-input" name="file" accept="image/*,video/*,audio/*" required
-                            style="display: none;">
+                    <label class="drop-zone" id="detect-drop-zone" for="detect-file-input">
+                        <input type="file" id="detect-file-input" name="file" accept="image/*,video/*,audio/*" required>
                         <p>Drag & drop a file here or <span class="click-link">click to browse</span></p>
                         <p class="file-name" id="detect-file-name"></p>
-                    </div>
+                    </label>
                     <button type="submit" name="detect">Run Detection</button>
                 </form>
             </section>
@@ -120,8 +146,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     <label>Upload File</label>
                     <div class="drop-zone" id="reveal-drop-zone">
-                        <input type="file" id="reveal-file-input" name="file" accept="image/*,video/*,audio/*" required
-                            style="display: none;">
+                        <input type="file" id="reveal-file-input" name="file" accept="image/*,video/*,audio/*" required>
                         <p>Drag & drop a file here or <span class="click-link">click to browse</span></p>
                         <p class="file-name" id="reveal-file-name"></p>
                     </div>
